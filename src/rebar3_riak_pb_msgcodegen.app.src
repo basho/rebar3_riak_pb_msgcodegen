@@ -1,0 +1,11 @@
+{application, rebar3_riak_pb_msgcodegen, [
+  {description, ""},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {env, []},
+  {modules, []},
+  {contributors, ["Zeeshan Lakhani, Cuyler Jones"]},
+  {licenses, ["Apache"]},
+  {links, [{"Github", "https://github.com/basho/rebar3_riak_pb_msgcodegen"}]}
+]}.
