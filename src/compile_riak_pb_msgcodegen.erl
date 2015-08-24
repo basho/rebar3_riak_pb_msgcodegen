@@ -64,6 +64,7 @@ do(State) ->
             rebar_api:info("found no csv files :-("),
             ok;
         FoundFiles ->
+            rebar_api:info("found files: ~p", FoundFiles),
             Targets = [{CSV, fq_erl_file(CSV)} || CSV <- FoundFiles ],
             generate_each(Targets)
     end,
