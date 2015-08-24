@@ -27,7 +27,7 @@
 
 -export([init/1, do/1, format_error/1]).
 
--import(riak_pb_msgcodegen,
+-import(riak_pb_msgcodegen_util,
         [module_comments/1,
          mod_name/1,
          erl_file/1,
