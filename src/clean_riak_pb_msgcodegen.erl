@@ -27,6 +27,9 @@
 
 -export([init/1, do/1, format_error/1]).
 
+-import(riak_pb_msgcodegen_util, 
+        [fq_erl_file/1]).
+
 -define(PROVIDER, clean).
 -define(DEPS, [{default, app_discovery}]).
 

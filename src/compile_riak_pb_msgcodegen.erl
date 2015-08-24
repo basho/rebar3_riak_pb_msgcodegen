@@ -30,7 +30,7 @@
 -import(riak_pb_msgcodegen,
         [module_comments/1,
          mod_name/1,
-         erl_file/1
+         erl_file/1,
          fq_erl_file/1]).
 
 -define(PROVIDER, compile).
