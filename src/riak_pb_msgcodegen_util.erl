@@ -20,21 +20,21 @@
 
 -export([module_comments/1,
          mod_name/1,
-         erl_file/1
+         erl_file/1,
          fq_erl_file/1]).
 
 module_comments(CSV) ->
     ["%% @doc This module contains message code mappings generated from\n%% ",
-     CSV,". DO NOT EDIT OR COMMIT THIS FILE!\n"]).
+     CSV,". DO NOT EDIT OR COMMIT THIS FILE!\n"].
 
 mod_name(SourceFile) ->
-    filename:basename(SourceFile, ".csv")).
+    filename:basename(SourceFile, ".csv").
 
 erl_file(SourceFile) ->
  mod_name(SourceFile) ++ ".erl".
 
 fq_erl_file(SourceFile) -> 
-    filename:join(["src", erl_file(SourceFile)])).
+    filename:join(["src", erl_file(SourceFile)]).
 
 
 
