@@ -30,8 +30,6 @@
 -define(PROVIDER, clean).
 -define(DEPS, [{default, app_discovery}]).
 
--include("riak_pb_msgcodegen.hrl").
-
 %% ===================================================================
 %% Public API
 %% ===================================================================
@@ -56,7 +54,7 @@ init(State) ->
 do(State) ->
     rebar_api:info("Cleaning compiled riak_pb_msgcodegen files...", []),
     CSVs = rebar_utils:find_files("src", ".*\\.csv"),
-    ErlFiles = [?FQ_ERL_FILE(CSV) || CSV <- CSVs],
+    ErlFiles = [fq_erl_file(CSV) || CSV <- CSVs],
     case ErlFiles of
         [] -> ok;
         _ -> delete_each(ErlFiles)

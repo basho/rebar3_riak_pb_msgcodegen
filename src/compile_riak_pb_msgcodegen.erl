@@ -27,10 +27,14 @@
 
 -export([init/1, do/1, format_error/1]).
 
+-import(riak_pb_msgcodegen,
+        [module_comments/1,
+         mod_name/1,
+         erl_file/1
+         fq_erl_file/1]).
+
 -define(PROVIDER, compile).
 -define(DEPS, [{default, compile}]).
-
--include("riak_pb_msgcodegen.hrl").
 
 %% ===================================================================
 %% Public API
@@ -57,9 +61,10 @@ do(State) ->
     rebar_api:info("Compile riak_pb_msgcodegen files...", []),
     case rebar_utils:find_files("src", ".*\\.csv") of
         [] ->
+            rebar_api:info("found no csv files :-("),
             ok;
         FoundFiles ->
-            Targets = [{CSV, ?FQ_ERL_FILE(CSV)} || CSV <- FoundFiles ],
+            Targets = [{CSV, fq_erl_file(CSV)} || CSV <- FoundFiles ],
             generate_each(Targets)
     end,
     {ok, State}.
@@ -80,9 +85,9 @@ generate_each([{CSV, Erl}|Rest]) ->
             ok;
         true ->
             Tuples = load_csv(CSV),
-            Module = generate_module(?MOD_NAME(CSV), Tuples),
+            Module = generate_module(mod_name(CSV), Tuples),
             Formatted = erl_prettypr:format(Module),
-            ok = file:write_file(Erl, [?MODULE_COMMENTS(CSV), Formatted]),
+            ok = file:write_file(Erl, [module_comments(CSV), Formatted]),
             rebar_api:console("Generated ~s~n", [Erl])
     end,
     generate_each(Rest).
