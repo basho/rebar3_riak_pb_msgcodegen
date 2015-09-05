@@ -60,6 +60,7 @@ do(State) ->
             ok;
         FoundFiles ->
             Targets = [{CSV, ?FQ_ERL_FILE(CSV)} || CSV <- FoundFiles ],
+            io:format("Targets: ~p~n", [Targets]),
             generate_each(Targets)
     end,
     {ok, State}.
