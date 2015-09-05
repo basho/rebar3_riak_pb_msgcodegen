@@ -55,7 +55,7 @@ do(State) ->
     rebar_api:info("Compile riak_pb_msgcodegen files...", []),
     {ok, Dir} = file:get_cwd(),
     io:format("Current Directory: ~p~n", [Dir]),
-    case rebar_utils:find_files("src", ".*\\csv") of
+    case rebar_utils:find_files("src", ".csv") of
         []->
             io:format("No files found!~n~n"),
             ok;
