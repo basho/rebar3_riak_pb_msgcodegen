@@ -40,7 +40,6 @@ init(State) ->
     Provider = providers:create([
             {name, ?PROVIDER},
             {module, ?MODULE},
-%%            {hooks, ?HOOKS},
             {bare, true},
             {deps, ?DEPS},
             {example, "rebar3 rebar3_riak_pb_msgcodegen"},
@@ -53,7 +52,7 @@ init(State) ->
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
-    io:format("Current State: ~p~n", [State]),
+    io:format("RUNNING!~n~n"),
     rebar_api:info("Compile riak_pb_msgcodegen files...", []),
     case rebar_utils:find_files("src", ".*\\csv") of
         []->
