@@ -80,6 +80,7 @@ generate_each([]) ->
 generate_each([{CSV, Erl}|Rest]) ->
     case is_modified(CSV, Erl) of
         false ->
+            io:format("Nothing to do!~n"),
             ok;
         true ->
             io:format("Generating Files: ~p~n", [CSV]),
@@ -92,6 +93,7 @@ generate_each([{CSV, Erl}|Rest]) ->
     generate_each(Rest).
 
 is_modified(CSV, Erl) ->
+    io:format("Checking for modifications~n"),
     not filelib:is_regular(Erl) orelse
         filelib:last_modified(CSV) > filelib:last_modified(Erl).
 
