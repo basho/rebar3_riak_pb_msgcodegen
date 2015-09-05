@@ -29,6 +29,7 @@
 
 -define(PROVIDER, rebar3_riak_pb_msgcodegen).
 -define(DEPS, [compile]).
+-define(HOOKS, {pre, compile}).
 
 -include("riak_pb_msgcodegen.hrl").
 
@@ -40,6 +41,7 @@ init(State) ->
     Provider = providers:create([
             {name, ?PROVIDER},
             {module, ?MODULE},
+            {hooks, ?HOOKS},
             {bare, true},
             {deps, ?DEPS},
             {example, "rebar3 rebar3_riak_pb_msgcodegen"},
