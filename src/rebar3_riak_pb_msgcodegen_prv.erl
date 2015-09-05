@@ -98,7 +98,7 @@ is_modified(CSV, Erl) ->
     
     %%MAKE IT WORK
     
-    Result = not filelib:is_regular(Erl),
+    Result = filelib:is_regular(Erl),
     io:format("Result: ~p~n", [Result]),
     Result.
 
