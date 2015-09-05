@@ -82,6 +82,7 @@ generate_each([{CSV, Erl}|Rest]) ->
         false ->
             ok;
         true ->
+            io:format("Generating Files: ~p~n", [CSV]),
             Tuples = load_csv(CSV),
             Module = generate_module(?MOD_NAME(CSV), Tuples),
             Formatted = erl_prettypr:format(Module),
