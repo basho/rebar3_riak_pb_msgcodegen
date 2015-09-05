@@ -20,7 +20,8 @@
 %% under the License.
 %%
 %% -------------------------------------------------------------------
--module('rebar3_riak_pb_msgcodegen_prv').
+-module(rebar3_riak_pb_msgcodegen_prv).
+-behavior(provider).
 
 -export([init/1, 
          do/1, 
@@ -73,21 +74,79 @@ format_error(Reason) ->
 
 generate_each([]) ->
     ok;
+
 generate_each([{CSV, Erl}|Rest]) ->
     case is_modified(CSV, Erl) of
         false ->
-            io:format("Not modified"),
             ok;
         true ->
-            io:format("Modified")
-            %% Tuples = load_csv(CSV),
-            %% Module = generate_module(?MODE_NAME(CSV), Tuples),
-            %% Formatted = erl_prettypr:format(Module),
-            %% ok = file:write(Erl, [?MODULE_COMMENTS(CSV), Formatted]),
-            %% rebar_api:console("Generated ~s~n", [Erl])
+            Tuples = load_csv(CSV),
+            Module = generate_module(?MOD_NAME(CSV), Tuples),
+            Formatted = erl_prettypr:format(Module),
+            ok = file:write(Erl, [?MODULE_COMMENTS(CSV), Formatted]),
+            rebar_api:console("Generated ~s~n", [Erl])
     end,
     generate_each(Rest).
 
 is_modified(CSV, Erl) ->
     not filelib:is_regular(Erl) orelse
         filelib:last_modified(CSV) > filelib:last_modified(Erl).
+
+load_csv(SourceFile) ->
+    {ok, Bin} = file:read_file(SourceFile),
+    csv_to_tuples(unicode:characters_to_list(Bin, latin1)).
+
+csv_to_tuples(String) ->
+    Lines = string:tokens(String, [$\r, $\n]),
+    [ begin
+          [Code, Message, Proto] = string:tokens(Line, ","),
+          {list_to_integer(Code), string:to_lower(Message), Proto ++ "_pb"}
+      end
+      || Line <- Lines].
+
+generate_module(Name, Tuples) ->
+    Mod = erl_syntax:attribute(erl_syntax:atom(module),
+                               [erl_syntax:atom(Name)]),
+    ExportsList = [
+                   erl_syntax:arity_qualifier(erl_syntax:atom(Fun),
+                                              erl_syntax:integer(1))
+                   || Fun <- [msg_type, msg_code, decoder_for] ],
+    Exports = erl_syntax:attribute(erl_syntax:atom(export),
+                                   [erl_syntax:list(ExportsList)]),
+    
+    Clauses = generate_msg_type(Tuples) ++
+              generate_msg_code(Tuples) ++
+              generate_decoder_for(Tuples),
+    
+    erl_syntax:form_list([Mod, Exports|Clauses]).
+
+
+generate_decoder_for(Tuples) ->
+    Spec = erl_syntax:text("-spec decoder_for(non_neg_integer()) -> module().\n"),
+    Name = erl_syntax:atom(decoder_for),
+    Clauses = [
+               erl_syntax:clause([erl_syntax:integer(Code)],
+                                 none,
+                                 [erl_syntax:atom(Mod)])
+               || {Code, _, Mod} <- Tuples ],
+    [ Spec, erl_syntax:function(Name, Clauses) ].
+
+generate_msg_code(Tuples) ->
+    Spec = erl_syntax:text("-spec msg_code(atom()) -> non_neg_integer()."),
+    Name = erl_syntax:atom(msg_code),
+    Clauses = [
+               erl_syntax:clause([erl_syntax:atom(Msg)], none,
+                                 [erl_syntax:integer(Code)])
+               || {Code, Msg, _} <- Tuples ],
+    [ Spec, erl_syntax:function(Name, Clauses) ].
+
+generate_msg_type(Tuples) ->
+    Spec = erl_syntax:text("-spec msg_type(non_neg_integer()) -> atom()."),
+    Name = erl_syntax:atom(msg_type),
+    Clauses = [
+               erl_syntax:clauses([erl_syntax:integer(Code)], none,
+                                  [erl_syntax:atom(Msg)])
+               || {Code, Msg, _} <- Tuples ],
+    CatchAll = erl_syntax:clause([erl_syntax:underscore()], none,
+                                 [erl_syntax:atom(undefined)]),
+    [ Spec, erl_syntax:function(Name, Clauses ++ [CatchAll]) ].
