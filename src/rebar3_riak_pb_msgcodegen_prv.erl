@@ -95,8 +95,10 @@ generate_each([{CSV, Erl}|Rest]) ->
 is_modified(CSV, Erl) ->
     io:format("Checking for modifications~n"),
     io:format("CSV: ~p  Erl: ~p ~n~n", [CSV, Erl]),
-    not filelib:is_regular(Erl) orelse
-        filelib:last_modified(CSV) > filelib:last_modified(Erl).
+    Result = not filelib:is_regular(Erl) orelse
+        filelib:last_modified(CSV) > filelib:last_modified(Erl),
+    io:format("Generate files: ~p~n", [Result]),
+    Result.
 
 load_csv(SourceFile) ->
     {ok, Bin} = file:read_file(SourceFile),
