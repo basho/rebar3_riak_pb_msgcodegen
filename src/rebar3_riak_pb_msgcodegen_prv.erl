@@ -28,8 +28,7 @@
          format_error/1]).
 
 -define(PROVIDER, rebar3_riak_pb_msgcodegen).
--define(DEPS, [compile]).
-%%-define(HOOKS, {{pre, compile}}).
+-define(DEPS, [{default, compile}]).
 
 -include("riak_pb_msgcodegen.hrl").
 
