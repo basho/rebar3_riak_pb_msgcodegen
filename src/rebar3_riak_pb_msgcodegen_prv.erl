@@ -60,9 +60,10 @@ do(State) ->
             io:format("No files found!~n~n"),
             ok;
         FoundFiles ->
-            Targets = [{CSV, ?FQ_ERL_FILE(CSV)} || CSV <- FoundFiles ],
+            Targets = [{CSV, fq_erl_file(CSV)} || CSV <- FoundFiles ],
             io:format("Targets: ~p~n", [Targets]),
-            generate_each(Targets)
+            generate_each(Targets),
+            io:format("*** Done! ~n~n")
     end,
     {ok, State}.
 
@@ -85,7 +86,7 @@ generate_each([{CSV, Erl}|Rest]) ->
         true ->
             io:format("Generating Files: ~p~n", [CSV]),
             Tuples = load_csv(CSV),
-            Module = generate_module(?MOD_NAME(CSV), Tuples),
+            Module = generate_module(mod_name(CSV), Tuples),
             Formatted = erl_prettypr:format(Module),
             ok = file:write(Erl, [?MODULE_COMMENTS(CSV), Formatted]),
             rebar_api:console("Generated ~s~n", [Erl])
@@ -95,23 +96,38 @@ generate_each([{CSV, Erl}|Rest]) ->
 is_modified(CSV, Erl) ->
     io:format("Checking for modifications~n"),
     io:format("CSV: ~p  Erl: ~p ~n~n", [CSV, Erl]),
-    
+    not filelib:is_regular(Erl) orelse
+        filelib:last_modified(CSV) > filelib:last_modified(Erl).
     %%MAKE IT WORK
     
-    Result = filelib:is_regular(Erl),
-    io:format("Result: ~p~n", [Result]),
-    Result.
+    %%Result = filelib:is_regular(Erl),
+    %%io:format("Result: ~p~n", [Result]),
+    %%Result.
 
     %% Result = not filelib:is_regular(Erl) orelse
     %%     filelib:last_modified(CSV) > filelib:last_modified(Erl),
     %% io:format("Generate files: ~p~n", [Result]),
     %% Result.
 
+mod_name(SourceFile) ->
+    io:format("mod_name Source File: ~p~n", [SourceFile]),
+    filename:basename(SourceFile, ".csv").
+
+fq_erl_file(SourceFile) ->
+    io:format("fq_erl_file Source File: ~p~n", [SourceFile]),
+    filename:join(["src", erl_file(SourceFile)]).
+
+erl_file(SourceFile) ->
+    io:format("erl_file Source File: ~p~n", [SourceFile]),
+    mod_name(SourceFile) ++ ".erl".
+
 load_csv(SourceFile) ->
+    io:format("load_csv Source File: ~p~n", [SourceFile]),
     {ok, Bin} = file:read_file(SourceFile),
     csv_to_tuples(unicode:characters_to_list(Bin, latin1)).
 
 csv_to_tuples(String) ->
+    io:format("csv_to_tuples~n"),
     Lines = string:tokens(String, [$\r, $\n]),
     [ begin
           [Code, Message, Proto] = string:tokens(Line, ","),
@@ -120,6 +136,7 @@ csv_to_tuples(String) ->
       || Line <- Lines].
 
 generate_module(Name, Tuples) ->
+    io:format("Generate Module: Name: ~p~n", [Name]),
     Mod = erl_syntax:attribute(erl_syntax:atom(module),
                                [erl_syntax:atom(Name)]),
     ExportsList = [
@@ -134,7 +151,6 @@ generate_module(Name, Tuples) ->
               generate_decoder_for(Tuples),
     
     erl_syntax:form_list([Mod, Exports|Clauses]).
-
 
 generate_decoder_for(Tuples) ->
     Spec = erl_syntax:text("-spec decoder_for(non_neg_integer()) -> module().\n"),
