@@ -27,9 +27,9 @@
          do/1, 
          format_error/1]).
 
--define(PROVIDER, 'rebar3_riak_pb_msgcodegen').
-%%-define(DEPS, [app_discovery]).
--define(DEPS, [{default, compile}]).
+-define(PROVIDER, rebar3_riak_pb_msgcodegen).
+-define(DEPS, [compile]).
+-define(HOOKS, [pre]).
 
 -include("riak_pb_msgcodegen.hrl").
 
@@ -39,12 +39,13 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     Provider = providers:create([
-            {name, ?PROVIDER},            % The 'user friendly' name of the task
-            {module, ?MODULE},            % The module implementation of the task
-            {bare, true},                 % The task can be run by the user, always true
-            {deps, ?DEPS},                % The list of dependencies
-            {example, "rebar3 rebar3_riak_pb_msgcodegen"}, % How to use the plugin
-            {opts, []},                   % list of options understood by the plugin
+            {name, ?PROVIDER},
+            {module, ?MODULE},
+            {hooks, ?HOOKS},
+            {bare, true},
+            {deps, ?DEPS},
+            {example, "rebar3 rebar3_riak_pb_msgcodegen"},
+            {opts, []},
             {short_desc, "Rebar 3 plugin for generating Riak protobufs as part of the riak_pb build process."},
             {desc, "Rebar 3 plugin for generating Riak protobufs as part of the riak_pb build process."}
     ]),
