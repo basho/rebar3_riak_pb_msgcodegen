@@ -52,10 +52,10 @@ init(State) ->
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
 do(State) ->
-    io:format("RUNNING!~n~n"),
     rebar_api:info("Compile riak_pb_msgcodegen files...", []),
     case rebar_utils:find_files("src", ".*\\csv") of
         []->
+            io:format("No files found!~n~n"),
             ok;
         FoundFiles ->
             Targets = [{CSV, ?FQ_ERL_FILE(CSV)} || CSV <- FoundFiles ],
