@@ -1,0 +1,15 @@
+{application, 'rebar3_riak_pb_msgcodegen',
+ [{description, "Rebar 3 plugin for generating Riak protobufs as part of the riak_pb build process."},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications,
+   [kernel,
+    stdlib
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {contributors, []},
+  {licenses, []},
+  {links, []}
+ ]}.
