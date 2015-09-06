@@ -79,6 +79,7 @@ generate_each([]) ->
     ok;
 
 generate_each([{CSV, Erl}|Rest]) ->
+    io:format("Generate Each: CSV: ~p Erl: ~p", [CSV, Erl]),
     case is_modified(CSV, Erl) of
         false ->
             io:format("Nothing to do!~n"),
